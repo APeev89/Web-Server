@@ -20,8 +20,8 @@ namespace MyHTTPWebServer.HTTP
 
             var startLine = lines.First().Split(" ");
 
-            var url = startLine[1];
             var method = ParseMethod(startLine[0]);
+            var url = startLine[1];
 
             HeaderCollection headers = ParseHeaders(lines.Skip(1));
 
