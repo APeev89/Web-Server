@@ -15,7 +15,7 @@ public class StartUp
         .MapGet("/", new TextResponse("Hello from the server!"))
         .MapGet("/Redirect", new RedirectResponse("https://softuni.org/"))
         .MapGet("/HTML", new HtmlResponse(StartUp.HtmlForm))
-        .MapPost("/HTML", new TextResponse("")))
+        .MapPost("/HTML", new TextResponse("",StartUp.AddFormDataAction)))
         .Start();
 
 }
