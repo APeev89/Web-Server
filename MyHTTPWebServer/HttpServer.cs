@@ -31,9 +31,14 @@ namespace MyHTTPWebServer
                 var connection = serverListener.AcceptTcpClient();
 
                 var netWorkStream = connection.GetStream();
+
+                string requestText = this.ReadRequest(netWorkStream);
+                Console.WriteLine(requestText);
                 string content = "Hello from the server!";
 
                 WriteResponse(netWorkStream, content);
+
+                
 
                 connection.Close();
             }
@@ -52,6 +57,25 @@ Content-Length: {contentLength}
             var responseBytes = Encoding.UTF8.GetBytes(response);
 
             netWorkStream.Write(responseBytes, 0, responseBytes.Length);
+        }
+
+        private string ReadRequest(NetworkStream netWorkStream)
+        {
+            int bufferLenght = 1024;
+            byte[] buffer = new byte[bufferLenght];
+
+            StringBuilder requestBuilder = new StringBuilder();
+            int totalBytes = 0;
+
+            do
+            {
+                var bytesRead = netWorkStream.Read(buffer, 0, bufferLenght);
+                totalBytes += bytesRead;
+                requestBuilder.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
+
+            } while (netWorkStream.DataAvailable);
+
+            return requestBuilder.ToString();
         }
     }
 

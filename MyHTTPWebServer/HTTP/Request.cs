@@ -47,7 +47,9 @@ namespace MyHTTPWebServer.HTTP
                 {
                     break;
                 }
+
                 var headerParts = headersLine.Split(":", 2);
+
                 if (headerParts.Length != 2)
                 {
                     throw new InvalidOperationException("Request is not valid.");
@@ -55,10 +57,11 @@ namespace MyHTTPWebServer.HTTP
 
                 var headerName = headerParts[0];
                 var headerValue = headerParts[1].Trim();
+
                 headerCollection.Add(headerName, headerValue);
 
             }
-                return headerCollection;
+            return headerCollection;
         }
 
         private static Method ParseMethod(string method)
@@ -75,7 +78,7 @@ namespace MyHTTPWebServer.HTTP
         }
     }
 
-   
 
-    
+
+
 }
