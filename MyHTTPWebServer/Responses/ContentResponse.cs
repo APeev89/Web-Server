@@ -21,5 +21,17 @@ namespace MyHTTPWebServer.Responses
             this.Body = content;
 
         }
+
+        public override string ToString()
+        {
+            if (this.Body != null)
+            {
+                var contentLength = Encoding.UTF8.GetByteCount(this.Body).ToString();
+                this.Headers.Add(Header.ContentLength, contentLength);
+
+            }
+
+            return base.ToString();
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using MyHTTPWebServer.HTTP;
+using MyHTTPWebServer.Routing;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
@@ -10,13 +12,28 @@ namespace MyHTTPWebServer
         private readonly int port;
         private readonly TcpListener serverListener;
 
-        public HttpServer(string ipAddress , int port)
+        private readonly RoutingTable routingTable;
+
+        public HttpServer(Action<IRoutingTable> routingTable) : this(8080, routingTable)
+        {
+        }
+
+        public HttpServer(int port, Action<IRoutingTable> routingTable) : this("127.0.0.1", port, routingTable)
+        {
+        }
+
+        public HttpServer(string ipAddress , int port, Action<IRoutingTable> routingTableConfiguration)
         {
             this.ipAddress = IPAddress.Parse(ipAddress);
             this.port = port;
 
             this.serverListener = new TcpListener(this.ipAddress, port);
+
+            routingTableConfiguration(this.routingTable = new RoutingTable());
         }
+
+        
+       
         public void Start()
         {
             this.serverListener.Start();
@@ -31,12 +48,14 @@ namespace MyHTTPWebServer
                 var connection = serverListener.AcceptTcpClient();
 
                 var netWorkStream = connection.GetStream();
-
                 string requestText = this.ReadRequest(netWorkStream);
                 Console.WriteLine(requestText);
-                string content = "Hello from the server!";
 
-                WriteResponse(netWorkStream, content);
+                var request = Request.Parse(requestText);
+                var response = this.routingTable.MatchRequest(request);
+
+
+                WriteResponse(netWorkStream, response);
 
                 
 
@@ -44,19 +63,12 @@ namespace MyHTTPWebServer
             }
         }
 
-        private void WriteResponse(NetworkStream netWorkStream, string content)
+        private void WriteResponse(NetworkStream netWorkStream, Response response)
         {
-            int contentLength = Encoding.UTF8.GetByteCount(content);
 
-            string response = $@"HTTP/1.1 200 OK
-Content-Type: text/plain; charset=UTF-8
-Content-Length: {contentLength}
+            var responseBytes = Encoding.UTF8.GetBytes(response.ToString());
 
-{content}";
-
-            var responseBytes = Encoding.UTF8.GetBytes(response);
-
-            netWorkStream.Write(responseBytes, 0, responseBytes.Length);
+            netWorkStream.Write(responseBytes);
         }
 
         private string ReadRequest(NetworkStream netWorkStream)
