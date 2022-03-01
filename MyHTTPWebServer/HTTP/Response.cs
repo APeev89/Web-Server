@@ -12,8 +12,8 @@ namespace MyHTTPWebServer.HTTP
         {
             this.StatusCode = statusCode;
 
-            this.Headers.Add("Server", "My WebServer");
-            this.Headers.Add("Date", $"{DateTime.UtcNow:r}");
+            this.Headers.Add(Header.Server,"My WebServer");
+            this.Headers.Add(Header.Date, $"{DateTime.UtcNow:r}");
         }
 
         public StatusCode StatusCode { get; init; }
