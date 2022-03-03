@@ -22,7 +22,7 @@ namespace MyHTTPWebServer
         {
         }
 
-        public HttpServer(string ipAddress , int port, Action<IRoutingTable> routingTableConfiguration)
+        public HttpServer(string ipAddress, int port, Action<IRoutingTable> routingTableConfiguration)
         {
             this.ipAddress = IPAddress.Parse(ipAddress);
             this.port = port;
@@ -32,9 +32,9 @@ namespace MyHTTPWebServer
             routingTableConfiguration(this.routingTable = new RoutingTable());
         }
 
-        
-       
-        public void Start()
+
+
+        public async Task Start()
         {
             this.serverListener.Start();
 
@@ -42,39 +42,39 @@ namespace MyHTTPWebServer
             Console.WriteLine($"Server started on port {port}");
             Console.WriteLine($"Listening for requests...");
 
-
             while (true)
             {
-                var connection = serverListener.AcceptTcpClient();
-
-                var netWorkStream = connection.GetStream();
-                string requestText = this.ReadRequest(netWorkStream);
-                Console.WriteLine(requestText);
-
-                var request = Request.Parse(requestText);
-                var response = this.routingTable.MatchRequest(request);
-
-                if (response.PreRenderAction != null)
+                var connection = await serverListener.AcceptTcpClientAsync();
+                _ = Task.Run(async () =>
                 {
-                    response.PreRenderAction(request, response);
-                }
-                WriteResponse(netWorkStream, response);
+                    var netWorkStream = connection.GetStream();
+                    string requestText = await this.ReadRequest(netWorkStream);
+                    Console.WriteLine(requestText);
 
+                    var request = Request.Parse(requestText);
+                    var response = this.routingTable.MatchRequest(request);
+
+                    if (response.PreRenderAction != null)
+                    {
+                        response.PreRenderAction(request, response);
+                    }
+                    await WriteResponse(netWorkStream, response);
+
+                    connection.Close();
+                });
                 
-
-                connection.Close();
             }
         }
 
-        private void WriteResponse(NetworkStream netWorkStream, Response response)
+        private async Task WriteResponse(NetworkStream netWorkStream, Response response)
         {
 
             var responseBytes = Encoding.UTF8.GetBytes(response.ToString());
 
-            netWorkStream.Write(responseBytes);
+            await netWorkStream.WriteAsync(responseBytes);
         }
 
-        private string ReadRequest(NetworkStream netWorkStream)
+        private async Task<string> ReadRequest(NetworkStream netWorkStream)
         {
             int bufferLenght = 1024;
             byte[] buffer = new byte[bufferLenght];
@@ -84,10 +84,10 @@ namespace MyHTTPWebServer
 
             do
             {
-                var bytesRead = netWorkStream.Read(buffer, 0, bufferLenght);
+                var bytesRead = await netWorkStream.ReadAsync(buffer, 0, bufferLenght);
 
                 totalBytes += bytesRead;
-                
+
                 if (totalBytes > 10 * 1024)
                 {
                     throw new InvalidOperationException("Request is too large");
@@ -100,5 +100,5 @@ namespace MyHTTPWebServer
         }
     }
 
-    
+
 }
