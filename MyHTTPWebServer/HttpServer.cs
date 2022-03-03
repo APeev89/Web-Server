@@ -85,7 +85,9 @@ namespace MyHTTPWebServer
             do
             {
                 var bytesRead = netWorkStream.Read(buffer, 0, bufferLenght);
+
                 totalBytes += bytesRead;
+                
                 if (totalBytes > 10 * 1024)
                 {
                     throw new InvalidOperationException("Request is too large");
