@@ -23,6 +23,7 @@ public class StartUp
     private static void AddFormDataAction(Request request, Response response)
     {
         response.Body = "";
+
         foreach (var (key,value) in request.Form)
         {
             response.Body += $"{key} - {value}";
