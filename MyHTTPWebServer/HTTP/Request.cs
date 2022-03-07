@@ -6,6 +6,7 @@ namespace MyHTTPWebServer.HTTP
 {
     public class Request
     {
+        private static Dictionary<string, Session> Sessions = new Dictionary<string, Session>();
 
         public Method Method { get; private set; }
 
@@ -17,6 +18,7 @@ namespace MyHTTPWebServer.HTTP
 
         public string Body { get; private set; }
 
+        public Session Session { get; private set; }
         public IReadOnlyDictionary<string, string> Form { get; private set; }
 
 
@@ -32,6 +34,8 @@ namespace MyHTTPWebServer.HTTP
             HeaderCollection headers = ParseHeaders(lines.Skip(1));
             var cookies = ParseCookies(headers);
 
+            var session = GetSession(cookies);
+
             var bodyLines = lines.Skip(headers.Count + 2).ToArray();
             var body = string.Join("\r\n", bodyLines);
 
@@ -44,9 +48,15 @@ namespace MyHTTPWebServer.HTTP
                 Headers = headers,
                 Cookies = cookies,
                 Body = body,
+                Session = session,
                 Form = form
             };
 
+        }
+
+        private static Session GetSession(CookieCollection cookies)
+        {
+            throw new NotImplementedException();
         }
 
         private static CookieCollection ParseCookies(HeaderCollection headers)
