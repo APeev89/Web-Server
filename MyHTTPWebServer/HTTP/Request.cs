@@ -56,7 +56,16 @@ namespace MyHTTPWebServer.HTTP
 
         private static Session GetSession(CookieCollection cookies)
         {
-            throw new NotImplementedException();
+            var sessionId = cookies.Contains(Session.SessionCookieName)
+                ? cookies[Session.SessionCookieName]
+                : Guid.NewGuid().ToString();
+
+            if (!Sessions.ContainsKey(sessionId))
+            {
+                Sessions[sessionId] = new Session(sessionId);
+            }
+
+            return Sessions[sessionId];
         }
 
         private static CookieCollection ParseCookies(HeaderCollection headers)
