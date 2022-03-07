@@ -60,7 +60,8 @@ public class StartUp
         else
         {
             response.Body = "";
-            response.Body += $"<h3>You should first lg in - <a href=`/Login'>Login</a></h3>";
+            response.Body += $"<h3>You should first log in " + 
+                "- <a href='/Login'>Login</a></h3>";
         }
     }
 
