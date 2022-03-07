@@ -49,7 +49,7 @@ namespace MyHTTPWebServer.HTTP
 
         }
 
-        private static object ParseCookies(HeaderCollection headers)
+        private static CookieCollection ParseCookies(HeaderCollection headers)
         {
             var cookiesCollection = new CookieCollection();
 

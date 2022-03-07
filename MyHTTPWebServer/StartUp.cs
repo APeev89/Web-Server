@@ -62,7 +62,7 @@ public class StartUp
         }
         else
         {
-            bodyText = "<h1>No cookies yet!</h1>";
+            bodyText = "<h1>Cookies set!</h1>";
         }
 
         if (!requstHasCookies)
