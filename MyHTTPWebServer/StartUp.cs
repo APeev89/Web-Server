@@ -30,15 +30,36 @@ public class StartUp
        .MapPost("/HTML", new TextResponse("", StartUp.AddFormDataAction))
        .MapGet("/Content", new HtmlResponse(StartUp.DownloadForm))
        .MapPost("/Content", new TextFileResponse(StartUp.FileName))
-       .MapGet("/Cookies", new HtmlResponse("", StartUp.AddCookiesAction)));
+       .MapGet("/Cookies", new HtmlResponse("", StartUp.AddCookiesAction))
+       .MapGet("/Session", new TextResponse("",StartUp.DisplaySessionInfoAction)));
 
         await server.Start();
     }
+    private static void DisplaySessionInfoAction(Request request, Response response)
+    {
+        var sessionExistis = request.Session.ContainsKey(Session.SessionCurrentDateKey);
 
+        var bodyText = "";
+
+        if (sessionExistis)
+        {
+            var currentData = request.Session[Session.SessionCurrentDateKey];
+            bodyText = $"Stoped date: {currentData}!";
+
+        }
+        else
+        {
+            bodyText = "Current date stoped";
+        }
+
+        response.Body = "";
+        response.Body += bodyText;
+
+    }
 
     private static void AddCookiesAction(Request request, Response response)
     {
-        var requstHasCookies = request.Cookies.Any();
+        var requstHasCookies = request.Cookies.Any(c => c.Name != Session.SessionCookieName);
         var bodyText = "";
 
         if (requstHasCookies)
