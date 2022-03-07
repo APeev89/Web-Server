@@ -13,9 +13,11 @@ namespace MyHTTPWebServer.HTTP
 
         public HeaderCollection Headers { get; private set; }
 
+        public CookieCollection Cookies { get; private set; }
+
         public string Body { get; private set; }
 
-        public IReadOnlyDictionary<string,string> Form { get; private set; }
+        public IReadOnlyDictionary<string, string> Form { get; private set; }
 
 
         public static Request Parse(string request)
@@ -28,6 +30,7 @@ namespace MyHTTPWebServer.HTTP
             var url = startLine[1];
 
             HeaderCollection headers = ParseHeaders(lines.Skip(1));
+            var cookies = ParseCookies(headers);
 
             var bodyLines = lines.Skip(headers.Count + 2).ToArray();
             var body = string.Join("\r\n", bodyLines);
@@ -39,10 +42,33 @@ namespace MyHTTPWebServer.HTTP
                 Method = method,
                 Url = url,
                 Headers = headers,
+                Cookies = cookies,
                 Body = body,
                 Form = form
             };
 
+        }
+
+        private static object ParseCookies(HeaderCollection headers)
+        {
+            var cookiesCollection = new CookieCollection();
+
+            if (cookiesCollection.Contains(Header.Cookie))
+            {
+                var cookieHeader = headers[Header.Cookie];
+
+                var allCookies = cookieHeader.Split(';');
+
+                foreach (var cookieText in allCookies)
+                {
+                    var cookieParts = cookieText.Split('=');
+                    var cookieName = cookieParts[0].Trim();
+                    var cookieValue = cookieParts[1].Trim();
+
+                    cookiesCollection.Add(cookieName, cookieValue);
+                }
+            }
+            return cookiesCollection;
         }
 
         private static Dictionary<string, string> ParseFormData(string bodyLines)
@@ -59,11 +85,11 @@ namespace MyHTTPWebServer.HTTP
         {
             var formCollection = new Dictionary<string, string>();
 
-            if (headers.Contains(Header.ContentType) && headers[Header.ContentType] == ContentType.FormUrlEncoded )
+            if (headers.Contains(Header.ContentType) && headers[Header.ContentType] == ContentType.FormUrlEncoded)
             {
                 var parseResult = ParseFormData(body);
 
-                foreach (var (name,value) in parseResult)
+                foreach (var (name, value) in parseResult)
                 {
                     formCollection.Add(name, value);
                 }
