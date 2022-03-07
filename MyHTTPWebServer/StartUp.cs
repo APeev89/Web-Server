@@ -17,13 +17,14 @@ public class StartUp
    <input type='submit' value ='Download Sites Content' /> 
 </form>";
 
+    private const string FileName = "content.txt";
+
     private const string LoginForm = @"<form action='/Login' method='POST'>
    Username: <input type='text' name='Username'/>
    Password: <input type='text' name='Password'/>
    <input type='submit' value ='Log In' /> 
 </form>";
 
-    private const string FileName = "content.txt";
     private const string Username = "user";
     private const string Password = "user123";
     public static async Task Main()
@@ -41,7 +42,7 @@ public class StartUp
        .MapGet("/Cookies", new HtmlResponse("", StartUp.AddCookiesAction))
        .MapGet("/Session", new TextResponse("",StartUp.DisplaySessionInfoAction))
        .MapGet("/Login", new HtmlResponse(StartUp.LoginForm))
-       .MapGet("/Login", new HtmlResponse("", StartUp.LoginAction))
+       .MapPost("/Login", new HtmlResponse("", StartUp.LoginAction))
        .MapGet("/Logout", new HtmlResponse("", StartUp.LogoutAction))
        .MapGet("/UserProfile",new HtmlResponse("", StartUp.GetUserDataAction)));
         
