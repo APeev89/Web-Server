@@ -18,6 +18,8 @@ namespace MyHTTPWebServer.HTTP
 
         public StatusCode StatusCode { get; init; }
         public HeaderCollection Headers { get; } = new HeaderCollection();
+
+        public CookieCollection Cookie { get; } = new CookieCollection();
         public string Body { get; set; }
 
         public Action<Request, Response> PreRenderAction { get; protected set; }
@@ -32,6 +34,10 @@ namespace MyHTTPWebServer.HTTP
                 result.AppendLine(header.ToString());
             }
 
+            foreach (var cookie in this.Cookie)
+            {
+                result.AppendLine($"{Header.SetCookie}: {cookie}");
+            }
             result.AppendLine();
 
             if (!string.IsNullOrEmpty(this.Body))
