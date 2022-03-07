@@ -13,6 +13,8 @@ namespace MyHTTPWebServer.HTTP
 
         public const string SessionCurrentDateKey = "CurrentDate";
 
+        public const string SessionUserKey = "AuthenticatedUserId";
+
         private Dictionary<string, string> data;
 
         public Session(string id)
@@ -31,6 +33,8 @@ namespace MyHTTPWebServer.HTTP
             set => this.data[key] = value;
         }
 
+        public void Clear()
+            => this.data.Clear();
         public bool ContainsKey(string key)
             => this.data.ContainsKey(key);
     }
