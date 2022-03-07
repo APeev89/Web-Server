@@ -21,22 +21,23 @@ public class StartUp
     public static async Task Main()
     {
         await DownloadSitesAsTextFile(StartUp.FileName,
-            new string[] { "https://judge.softuni.org/:", "https://softuni.org/" });
+            new string[] { "https://judge.softuni.org/", "https://softuni.org/" });
 
-        var server =  new HttpServer(routes => routes
-        .MapGet("/", new TextResponse("Hello from the server!"))
-        .MapGet("/Redirect", new RedirectResponse("https://softuni.org/"))
-        .MapGet("/HTML", new HtmlResponse(StartUp.HtmlForm))
-        .MapPost("/HTML", new TextResponse("",StartUp.AddFormDataAction))
-        .MapGet("/Content", new HtmlResponse(StartUp.DownloadForm))
-        .MapPost("/Content", new TextFileResponse(StartUp.FileName)))
-        .Start();
+        var server = new HttpServer(routes => routes
+       .MapGet("/", new TextResponse("Hello from the server!"))
+       .MapGet("/Redirect", new RedirectResponse("https://softuni.org/"))
+       .MapGet("/HTML", new HtmlResponse(StartUp.HtmlForm))
+       .MapPost("/HTML", new TextResponse("", StartUp.AddFormDataAction))
+       .MapGet("/Content", new HtmlResponse(StartUp.DownloadForm))
+       .MapPost("/Content", new TextFileResponse(StartUp.FileName)));
+
+        await server.Start();
     }
     private static void AddFormDataAction(Request request, Response response)
     {
         response.Body = "";
 
-        foreach (var (key,value) in request.Form)
+        foreach (var (key, value) in request.Form)
         {
             response.Body += $"{key} - {value}";
             response.Body += Environment.NewLine;
@@ -54,7 +55,7 @@ public class StartUp
         }
     }
 
-    private static async Task DownloadSitesAsTextFile( string filneName , string[] urls)
+    private static async Task DownloadSitesAsTextFile(string filneName, string[] urls)
     {
         List<Task<string>> downloads = new List<Task<string>>();
         foreach (string url in urls)
@@ -64,7 +65,7 @@ public class StartUp
 
         var responses = await Task.WhenAll(downloads);
         var responsesString = string.Join(
-            Environment.NewLine + new String('-',100), responses);
+            Environment.NewLine + new String('-', 100), responses);
         await File.WriteAllTextAsync(filneName, responsesString);
     }
 }
