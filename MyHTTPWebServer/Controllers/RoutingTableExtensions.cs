@@ -26,6 +26,9 @@ namespace MyHTTPWebServer.Controllers
             where TController : Controller
             => routingTable.MapPost(path,request => controllerFunction(
                 CreateController<TController>(request)));
+
+        private static TController CreateController<TController>(Request request)
+        =>(TController)Activator.CreateInstance(typeof(TController),new [] {request});
     }
 }
 
