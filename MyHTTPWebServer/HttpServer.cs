@@ -54,11 +54,6 @@ namespace MyHTTPWebServer
                     var request = Request.Parse(requestText);
                     var response = this.routingTable.MatchRequest(request);
 
-                    if (response.PreRenderAction != null)
-                    {
-                        response.PreRenderAction(request, response);
-                    }
-
                     AddSession(request, response);
 
                     await WriteResponse(netWorkStream, response);

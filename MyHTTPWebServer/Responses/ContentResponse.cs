@@ -1,28 +1,20 @@
 ﻿using MyHTTPWebServer.Common;
 using MyHTTPWebServer.HTTP;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MyHTTPWebServer.Responses
 {
     public class ContentResponse : Response
     {
-        public ContentResponse(string content, string contentType, Action<Request,Response> preRenderAction) 
+        public ContentResponse(string content, string contentType) 
             : base(StatusCode.OK)
         {
-
             Guard.AgainstNull(content);
             Guard.AgainstNull(contentType);
-
-            this.PreRenderAction = preRenderAction;
 
             this.Headers.Add(Header.ContentType, contentType);
 
             this.Body = content;
-
         }
 
         public override string ToString()

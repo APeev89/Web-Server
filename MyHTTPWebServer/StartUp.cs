@@ -1,15 +1,8 @@
 ﻿using MyHTTPWebServer;
 using MyHTTPWebServer.Controllers;
-using MyHTTPWebServer.HTTP;
-using MyHTTPWebServer.Responses;
-using System.Net;
-using System.Text;
-using System.Web;
-
 
 public class StartUp
 {
-
     public static async Task Main()
     => await new HttpServer(routes => routes
         .MapGet<HomeController>("/", c => c.Index())
@@ -25,9 +18,6 @@ public class StartUp
         .MapGet<UsersController>("/Logout", c => c.Logout())
         .MapGet<UsersController>("/UserProfile", c => c.GetUserData()))
       .Start();
-
-
- 
 
 }
 
