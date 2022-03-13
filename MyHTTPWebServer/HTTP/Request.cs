@@ -72,7 +72,7 @@ namespace MyHTTPWebServer.HTTP
         {
             var cookiesCollection = new CookieCollection();
 
-            if (cookiesCollection.Contains(Header.Cookie))
+            if (headers.Contains(Header.Cookie))
             {
                 var cookieHeader = headers[Header.Cookie];
 

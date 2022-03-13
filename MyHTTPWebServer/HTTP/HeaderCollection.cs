@@ -18,6 +18,7 @@ namespace MyHTTPWebServer.HTTP
             => this.headers[name].Value;
         public int Count => this.headers.Count;
 
+        
         public bool Contains(string name)
             => this.headers.ContainsKey(name);
 

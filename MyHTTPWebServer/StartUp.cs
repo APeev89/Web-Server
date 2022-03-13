@@ -63,6 +63,7 @@ public class StartUp
             response.Body += $"<h3>You should first log in " + 
                 "- <a href='/Login'>Login</a></h3>";
         }
+
     }
 
     private static void LogoutAction(Request request, Response response)
@@ -143,6 +144,7 @@ public class StartUp
         else
         {
             bodyText = "<h1>Cookies set!</h1>";
+            
         }
 
         if (!requstHasCookies)
@@ -150,6 +152,8 @@ public class StartUp
             response.Cookies.Add("My-Cookie", "My-Value");
             response.Cookies.Add("My-Second-Cookie", "My-Second-Value");
         }
+
+        response.Body = bodyText;
     }
     private static void AddFormDataAction(Request request, Response response)
     {
