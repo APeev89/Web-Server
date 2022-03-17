@@ -1,5 +1,6 @@
 ﻿using MyHTTPWebServer.HTTP;
 using MyHTTPWebServer.Routing;
+using System.Reflection;
 
 namespace MyHTTPWebServer.Controllers
 {
@@ -24,5 +25,16 @@ namespace MyHTTPWebServer.Controllers
 
         private static TController CreateController<TController>(Request request)
         => (TController)Activator.CreateInstance(typeof(TController), new[] { request });
+
+        private static Controller CreateController(Type controllerType, Request request)
+        {
+            var controller = (Controller)Request.ServiceCollection.CreateInstance(controllerType);
+
+            controllerType
+                .GetProperty("Request", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(controller, request);
+
+            return controller;
+        }
     }
 }
