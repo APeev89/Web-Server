@@ -1,4 +1,5 @@
-﻿using MyHTTPWebServer.HTTP;
+﻿using MyHTTPWebServer.Common;
+using MyHTTPWebServer.HTTP;
 using MyHTTPWebServer.Routing;
 using System.Net;
 using System.Net.Sockets;
@@ -14,6 +15,7 @@ namespace MyHTTPWebServer
 
         private readonly RoutingTable routingTable;
 
+        public readonly IServiceCollection ServiceCollection;
         public HttpServer(Action<IRoutingTable> routingTable) : this(8080, routingTable)
         {
         }
@@ -30,6 +32,8 @@ namespace MyHTTPWebServer
             this.serverListener = new TcpListener(this.ipAddress, port);
 
             routingTableConfiguration(this.routingTable = new RoutingTable());
+
+            ServiceCollection = new ServiceCollection();
         }
 
 
@@ -51,7 +55,7 @@ namespace MyHTTPWebServer
                     string requestText = await this.ReadRequest(netWorkStream);
                     Console.WriteLine(requestText);
 
-                    var request = Request.Parse(requestText);
+                    var request = Request.Parse(requestText , ServiceCollection);
                     var response = this.routingTable.MatchRequest(request);
 
                     AddSession(request, response);

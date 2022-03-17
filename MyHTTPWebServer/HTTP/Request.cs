@@ -1,5 +1,6 @@
 ﻿
 
+using MyHTTPWebServer.Common;
 using System.Web;
 
 namespace MyHTTPWebServer.HTTP
@@ -21,9 +22,12 @@ namespace MyHTTPWebServer.HTTP
         public Session Session { get; private set; }
         public IReadOnlyDictionary<string, string> Form { get; private set; }
 
+        public static IServiceCollection ServiceCollection { get; private set; }
 
-        public static Request Parse(string request)
+
+        public static Request Parse(string request, IServiceCollection serviceCollection)
         {
+            ServiceCollection = serviceCollection;
             var lines = request.Split("\r\n");
 
             var startLine = lines.First().Split(" ");

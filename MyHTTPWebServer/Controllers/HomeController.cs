@@ -1,4 +1,5 @@
 ﻿using MyHTTPWebServer.HTTP;
+using MyHTTPWebServer.Module;
 using MyHTTPWebServer.Responses;
 using System.Text;
 using System.Web;
@@ -21,13 +22,16 @@ namespace MyHTTPWebServer.Controllers
         public Response Html() => View();
         public Response HtmlFormPost()
         {
-            string formData = string.Empty;
-            foreach (var (key,value) in this.Request.Form)
+            string name = this.Request.Form["Name"];
+            string age = this.Request.Form["Age"];
+
+            var model = new FormViewModel()
             {
-                formData += $"{key} - {value}";
-                formData += Environment.NewLine;
-            }
-            return Text(formData);
+                Name = name,
+                Age = int.Parse(age),
+            };
+
+            return View(model);
         }
 
         public Response Content() => View();
