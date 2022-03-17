@@ -1,4 +1,5 @@
-﻿using MyHTTPWebServer.HTTP;
+﻿using MyHTTPWebServer.Attributes;
+using MyHTTPWebServer.HTTP;
 using MyHTTPWebServer.Routing;
 using System.Reflection;
 
@@ -22,6 +23,107 @@ namespace MyHTTPWebServer.Controllers
             where TController : Controller
             => routingTable.MapPost(path, request => controllerFunction(
                  CreateController<TController>(request)));
+
+        public static IRoutingTable MapControllers(this IRoutingTable routingTable)
+        {
+            IEnumerable<MethodInfo> controllerActions = GetControllerActions();
+
+            foreach (var controllerAction in controllerActions)
+            {
+                string controllerName = controllerAction
+                    .DeclaringType
+                    .Name
+                    .Replace(nameof(Controller), string.Empty);
+
+                string actionName = controllerAction.Name;
+                string path = $"/{controllerName}/{actionName}";
+
+                var responseFunction = GetResposnseFunction(controllerAction);
+
+                Method httpMethod = Method.Get;
+                var actionMethodAttribute = controllerAction
+                    .GetCustomAttribute<HttpMethodAttribute>();
+
+                if (actionMethodAttribute != null)
+                {
+                    httpMethod = actionMethodAttribute.HttpMethod;
+                }
+
+                routingTable.Map(httpMethod, path, responseFunction);
+            }
+
+            return routingTable;
+        }
+
+        private static Func<Request, Response> GetResposnseFunction(MethodInfo controllerAction)
+        {
+            return request =>
+            {
+                var controllerInstance = CreateController(controllerAction.DeclaringType, request);
+                var parameterValues = GetParameterValues(controllerAction, request);
+
+                return (Response)controllerAction.Invoke(controllerInstance, parameterValues);
+
+            };
+        }
+
+        private static object[] GetParameterValues(MethodInfo controllerAction, Request request)
+        {
+            var actionParameters = controllerAction
+                .GetParameters()
+                .Select(p => new
+                {
+                    p.Name,
+                    p.ParameterType
+                })
+                .ToArray();
+
+            var parameterValues = new object[actionParameters.Count()];
+
+            for (int i = 0; i < actionParameters.Length; i++)
+            {
+                var parameter = actionParameters[i];
+
+                if (parameter.ParameterType.IsPrimitive 
+                    || parameter.ParameterType == typeof(string))
+                {
+                    string parameterValue = request.GetValue(parameter.Name);
+                    parameterValues[i] = Convert.ChangeType(parameterValue, parameter.ParameterType);
+                }
+                else
+                {
+                    var parameterValue = Activator.CreateInstance(parameter.ParameterType);
+                    var parameterProperties = parameter.ParameterType.GetProperties();
+
+                    foreach(var property in parameterProperties)
+                    {
+                        var propertyValue = request.GetValue(property.Name);
+                        property.SetValue(
+                            parameterValue, 
+                            Convert.ChangeType(propertyValue, property.PropertyType));
+                    }
+
+                    parameterValues[i] = parameterValue;
+                }
+            }
+
+            return parameterValues;
+        }
+        private static string GetValue(this Request  request ,string name)
+            => request.Query.GetValueOrDefault(name) 
+            ?? request.Form.GetValueOrDefault(name);
+
+        private static IEnumerable<MethodInfo> GetControllerActions()
+            => Assembly
+            .GetEntryAssembly()
+            .GetExportedTypes()
+            .Where(t => t.IsAbstract == false)
+            .Where(t => t.IsAssignableTo(typeof(Controller)))
+            .Where(t => t.Name.EndsWith(nameof(Controller)))
+            .SelectMany(t => t
+                .GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                .Where(m => m.ReturnType.IsAssignableTo(typeof(Response))))
+            .ToList();
 
         private static TController CreateController<TController>(Request request)
         => (TController)Activator.CreateInstance(typeof(TController), new[] { request });

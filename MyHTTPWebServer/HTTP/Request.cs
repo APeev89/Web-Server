@@ -69,12 +69,7 @@ namespace MyHTTPWebServer.HTTP
             Dictionary<string, string> query = new Dictionary<string, string>();
             var parts = queryString.Split("?",2);
 
-            if (parts.Length == 1)
-            {
-                 url = parts[0];
-                
-            }
-            else
+            if (parts.Length > 1)
             {
                 var queryParams = parts[1].Split("&");
 
@@ -88,6 +83,7 @@ namespace MyHTTPWebServer.HTTP
                     }
                 }
             }
+            url = parts[0];
 
             return (url, query);
         }

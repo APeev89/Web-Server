@@ -1,4 +1,5 @@
-﻿using MyHTTPWebServer.HTTP;
+﻿using MyHTTPWebServer.Attributes;
+using MyHTTPWebServer.HTTP;
 using MyHTTPWebServer.Module;
 using MyHTTPWebServer.Responses;
 using System.Text;
@@ -9,17 +10,18 @@ namespace MyHTTPWebServer.Controllers
     public class HomeController : Controller
     {
        
-
         private const string FileName = "content.txt";
         public HomeController(Request request) : base(request)
         {
 
         }
-
+        [HttpGet]
         public Response Index() => Text("Hello from the server");
 
         public Response Redirect() => Redirect("https://softuni.org/");
         public Response Html() => View();
+
+        [HttpPost]
         public Response HtmlFormPost()
         {
             string name = this.Request.Form["Name"];
